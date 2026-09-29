@@ -31,4 +31,205 @@ async function begin(){
   }catch(e){mode("idle","Permission","Microphone permission needed",e?.message||"Allow microphone access and try again.")}
 }
 function stop(){active=false;audio.stop();start.disabled=false;stopBtn.disabled=true;mode("idle","Idle","Tap to wake Zaya","Voice-first AI, created by Kiran.")}
-start.addEventListener("click",begin);stopBtn.addEventListener("click",stop);orb.addEventListener("click",begin);
+start.addEventListener("click",begin);stopBtn.addEventListener("click",stop);orb.addEventListener("click",import { ZayaAudio } from "./audio.js";
+import { ZayaTools } from "./tools.js";
+
+const socket = io();
+const audio = new ZayaAudio();
+const tools = new ZayaTools();
+
+const orb = document.querySelector("#orb");
+const start = document.querySelector("#start");
+const stop = document.querySelector("#stop");
+const connection = document.querySelector("#connection");
+const state = document.querySelector("#state");
+const title = document.querySelector("#title");
+const subtitle = document.querySelector("#subtitle");
+const transcript = document.querySelector("#transcript");
+const model = document.querySelector("#model");
+
+let active = false;
+
+function setMode(mode, label, heading, sub) {
+  orb.className = `orb ${mode}`;
+  state.textContent = label.toUpperCase();
+  title.textContent = heading;
+  subtitle.textContent = sub;
+}
+
+function setConnection(online) {
+  connection.textContent = online ? "LIVE" : "OFFLINE";
+  connection.style.color = online ? "#8effd4" : "#ff6f91";
+}
+
+socket.on("connect", () => {
+  setConnection(true);
+});
+
+socket.on("disconnect", () => {
+  setConnection(false);
+  stopZaya();
+});
+
+socket.on("sessionStatus", data => {
+  if (data.status === "connected") {
+    setConnection(true);
+    model.textContent = "GEMINI LIVE";
+  }
+});
+
+socket.on("inputTranscript", data => {
+  if (data.text) {
+    transcript.textContent = `You: ${data.text}`;
+  }
+});
+
+socket.on("outputTranscript", data => {
+  if (data.text) {
+    transcript.textContent = `Zaya: ${data.text}`;
+  }
+});
+
+socket.on("audio", async base64 => {
+  if (!active) return;
+
+  setMode(
+    "speaking",
+    "Speaking",
+    "Zaya is speaking",
+    "Go ahead and interrupt me anytime."
+  );
+
+  await audio.playPCM24k(base64);
+});
+
+socket.on("interrupted", () => {
+  audio.stopPlayback();
+
+  if (active) {
+    setMode(
+      "listening",
+      "Listening",
+      "I'm listening",
+      "Your turn, Kiran."
+    );
+  }
+});
+
+socket.on("turnComplete", () => {
+  if (active) {
+    setMode(
+      "listening",
+      "Listening",
+      "Your turn",
+      "Go ahead, Kiran."
+    );
+  }
+});
+
+socket.on("toolCalls", async ({ calls }) => {
+  setMode(
+    "thinking",
+    "Thinking",
+    "On it…",
+    "Zaya is handling that."
+  );
+
+  const functionResponses = [];
+
+  for (const call of calls || []) {
+    const result = await tools.run(
+      call.name,
+      call.args || {}
+    );
+
+    functionResponses.push({
+      id: call.id,
+      name: call.name,
+      response: { result }
+    });
+  }
+
+  socket.emit("toolResponse", {
+    functionResponses
+  });
+});
+
+socket.on("serverError", data => {
+  console.error(data.message);
+
+  setMode(
+    "idle",
+    "Error",
+    "Zaya needs a second",
+    data.message || "Please try again."
+  );
+});
+
+async function startZaya() {
+  if (active) return;
+
+  try {
+    setMode(
+      "thinking",
+      "Starting",
+      "Waking Zaya…",
+      "Give me microphone access."
+    );
+
+    await audio.start(base64 => {
+      if (!active) return;
+
+      audio.stopPlayback();
+
+      setMode(
+        "listening",
+        "Listening",
+        "Zaya is listening",
+        "Speak naturally."
+      );
+
+      socket.emit("audio", base64);
+    });
+
+    active = true;
+
+    start.disabled = true;
+    stop.disabled = false;
+
+    setMode(
+      "listening",
+      "Listening",
+      "Zaya is listening",
+      "Your turn, Kiran."
+    );
+
+  } catch (error) {
+    setMode(
+      "idle",
+      "Permission",
+      "Microphone required",
+      error?.message || "Allow microphone access."
+    );
+  }
+}
+
+function stopZaya() {
+  active = false;
+
+  audio.stop();
+
+  start.disabled = false;
+  stop.disabled = true;
+
+  setMode(
+    "idle",
+    "Idle",
+    "Wake up Zaya",
+    "Your voice. Your assistant. Your world."
+  );
+}
+
+start.addEventListener("click", startZaya);
+stop.addEventListener("click", stopZaya);
+orb.addEventListener("click", startZaya);
