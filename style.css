@@ -14,3 +14,458 @@ button{font:inherit}.ambient{position:fixed;width:50vw;height:50vw;border-radius
 footer{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;padding:17px clamp(18px,5vw,64px)}
 @keyframes breathe{0%,100%{transform:scale(.96)}50%{transform:scale(1.05)}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes spinr{to{transform:rotate(-360deg)}}@keyframes pulse{50%{transform:scale(1.12);opacity:.45}}@keyframes speak{to{transform:scale(1.11)}}@keyframes speaking{to{transform:scale(1.09);opacity:.7}}
 @media(max-width:600px){.topbar{padding-top:16px}.brand small{display:none}.hero{padding-bottom:30px}.orb{width:min(75vw,290px)}}@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  --bg: #030307;
+  --purple: #9b7cff;
+  --cyan: #55eaff;
+  --white: #ffffff;
+  --muted: #777b91;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--white);
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    system-ui,
+    sans-serif;
+}
+
+body {
+  min-height: 100svh;
+  overflow: hidden;
+  position: relative;
+}
+
+.noise {
+  position: fixed;
+  inset: 0;
+  opacity: .025;
+  pointer-events: none;
+  z-index: 20;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+}
+
+.aurora {
+  position: fixed;
+  width: 65vw;
+  height: 65vw;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: .13;
+  pointer-events: none;
+}
+
+.aurora-one {
+  background: #784dff;
+  top: -30%;
+  left: -20%;
+}
+
+.aurora-two {
+  background: #00d9ff;
+  right: -25%;
+  bottom: -30%;
+}
+
+.topbar {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px clamp(18px, 5vw, 70px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 20px;
+  background:
+    linear-gradient(145deg, #b49aff, #5d40cf);
+  box-shadow:
+    0 0 25px rgba(155, 124, 255, .35);
+}
+
+.brand-name {
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: .18em;
+}
+
+.brand-sub {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 8px;
+  letter-spacing: .2em;
+}
+
+.live-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 999px;
+  background: rgba(255,255,255,.035);
+  font-size: 9px;
+  letter-spacing: .14em;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff4f79;
+  box-shadow: 0 0 12px #ff4f79;
+}
+
+.main {
+  position: relative;
+  z-index: 2;
+  min-height: calc(100svh - 110px);
+  display: flex;
+  justify-content: center;
+}
+
+.zaya-stage {
+  width: min(800px, 94vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.creator {
+  margin-bottom: 18px;
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 8px;
+  letter-spacing: .17em;
+}
+
+.creator strong {
+  color: #ddd9ff;
+  font-size: 9px;
+}
+
+.orb {
+  position: relative;
+  width: min(72vw, 330px);
+  aspect-ratio: 1;
+  cursor: pointer;
+  margin-bottom: 25px;
+}
+
+.orb-core {
+  position: absolute;
+  inset: 28%;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 35% 25%,
+      #ffffff 0%,
+      #d8d0ff 7%,
+      #a17fff 22%,
+      #5b3dc7 42%,
+      #18122d 70%,
+      #05050a 100%
+    );
+
+  box-shadow:
+    0 0 25px rgba(155,124,255,.8),
+    0 0 80px rgba(155,124,255,.3),
+    inset 0 0 35px rgba(255,255,255,.18);
+
+  animation: breathing 3.2s ease-in-out infinite;
+}
+
+.shine {
+  position: absolute;
+  width: 45%;
+  height: 25%;
+  top: 8%;
+  left: 13%;
+  border-radius: 50%;
+  background: rgba(255,255,255,.3);
+  filter: blur(10px);
+  transform: rotate(-25deg);
+}
+
+.z-letter {
+  position: relative;
+  font-size: 45px;
+  font-weight: 900;
+  letter-spacing: -.1em;
+  text-shadow: 0 0 25px rgba(255,255,255,.65);
+}
+
+.orbit {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(155,124,255,.28);
+}
+
+.orbit-one {
+  inset: 8%;
+  animation: rotate 8s linear infinite;
+}
+
+.orbit-two {
+  inset: 17%;
+  border-color: rgba(85,234,255,.23);
+  animation: rotateReverse 5s linear infinite;
+}
+
+.orbit-three {
+  inset: 1%;
+  border-color: rgba(255,255,255,.07);
+  animation: rotate 15s linear infinite;
+}
+
+.energy {
+  position: absolute;
+  inset: 3%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  opacity: .4;
+}
+
+.energy span {
+  width: 2px;
+  height: 10px;
+  border-radius: 10px;
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan);
+}
+
+.state {
+  font-size: 9px;
+  letter-spacing: .35em;
+  color: var(--cyan);
+  font-weight: 700;
+}
+
+h1 {
+  margin: 8px 0 7px;
+  font-size: clamp(30px, 7vw, 52px);
+  letter-spacing: -.055em;
+}
+
+#subtitle {
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.controls {
+  display: flex;
+  gap: 9px;
+}
+
+.controls button {
+  border-radius: 999px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 10px;
+  letter-spacing: .12em;
+  font-weight: 800;
+}
+
+.start-button {
+  color: #09070f;
+  background: white;
+  border: 0;
+  box-shadow: 0 0 30px rgba(255,255,255,.1);
+}
+
+.stop-button {
+  color: white;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+}
+
+.controls button:disabled {
+  opacity: .3;
+  cursor: not-allowed;
+}
+
+.voice-card {
+  width: min(700px, 94vw);
+  margin-top: 25px;
+  padding: 15px 17px;
+  text-align: left;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 20px;
+  background: rgba(255,255,255,.035);
+  backdrop-filter: blur(22px);
+  box-shadow: 0 20px 70px rgba(0,0,0,.25);
+}
+
+.voice-header {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 8px;
+  letter-spacing: .16em;
+}
+
+.voice-header i {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan);
+  margin-right: 6px;
+}
+
+.wave {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 7px 0;
+}
+
+.wave b {
+  width: 3px;
+  height: 9px;
+  border-radius: 10px;
+  background: linear-gradient(#a98cff,#54eaff);
+  opacity: .35;
+}
+
+.orb.listening ~ .voice-card .wave b,
+.orb.speaking ~ .voice-card .wave b {
+  animation: wave 650ms ease-in-out infinite alternate;
+}
+
+.wave b:nth-child(2n) { animation-delay: .1s }
+.wave b:nth-child(3n) { animation-delay: .2s }
+.wave b:nth-child(4n) { animation-delay: .3s }
+
+#transcript {
+  min-height: 20px;
+  color: #d9d8e7;
+  font-size: 12px;
+}
+
+footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  padding: 13px 20px;
+  color: #505366;
+  font-size: 7px;
+  letter-spacing: .18em;
+}
+
+.orb.listening .orbit-one {
+  animation: rotate 1.7s linear infinite;
+  border-style: dashed;
+}
+
+.orb.listening .orbit-two {
+  animation: rotateReverse 1.1s linear infinite;
+}
+
+.orb.thinking .orbit-one {
+  animation: thinking .8s ease-in-out infinite;
+}
+
+.orb.speaking .orb-core {
+  animation: speaking .28s ease-in-out infinite alternate;
+}
+
+.orb.speaking .orbit-one {
+  animation: speakingRing .45s ease-in-out infinite alternate;
+}
+
+@keyframes breathing {
+  0%,100% { transform: scale(.96) }
+  50% { transform: scale(1.045) }
+}
+
+@keyframes speaking {
+  to { transform: scale(1.13) }
+}
+
+@keyframes thinking {
+  50% { transform: scale(1.13); opacity: .5 }
+}
+
+@keyframes speakingRing {
+  to { transform: scale(1.1); opacity: .7 }
+}
+
+@keyframes rotate {
+  to { transform: rotate(360deg) }
+}
+
+@keyframes rotateReverse {
+  to { transform: rotate(-360deg) }
+}
+
+@keyframes wave {
+  from { height: 7px; opacity: .35 }
+  to { height: 35px; opacity: 1 }
+}
+
+@media(max-width:600px) {
+  .topbar {
+    padding: 16px;
+  }
+
+  .brand-sub {
+    display: none;
+  }
+
+  .creator {
+    margin-bottom: 5px;
+  }
+
+  .orb {
+    width: min(70vw, 280px);
+  }
+
+  footer {
+    font-size: 6px;
+  }
+}
