@@ -25,3 +25,261 @@ function toInt16(a){const o=new Int16Array(a.length);for(let i=0;i<a.length;i++)
 function clamp(v){const x=Math.max(-1,Math.min(1,v));return x<0?x*32768:x*32767}
 function toB64(buf){const b=new Uint8Array(buf.buffer,buf.byteOffset,buf.byteLength);let s="";for(let i=0;i<b.length;i+=32768)s+=String.fromCharCode(...b.subarray(i,i+32768));return btoa(s)}
 function fromB64(s){const b=atob(s),o=new Uint8Array(b.length);for(let i=0;i<b.length;i++)o[i]=b.charCodeAt(i);return o}
+export class ZayaAudio {
+  constructor() {
+    this.inputContext = null;
+    this.outputContext = null;
+    this.stream = null;
+    this.source = null;
+    this.processor = null;
+
+    this.playbackNodes = new Set();
+    this.nextPlayTime = 0;
+  }
+
+  async start(onChunk) {
+    this.stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        channelCount: 1,
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      }
+    });
+
+    this.inputContext = new AudioContext();
+
+    await this.inputContext.resume();
+
+    this.source =
+      this.inputContext.createMediaStreamSource(
+        this.stream
+      );
+
+    this.processor =
+      this.inputContext.createScriptProcessor(
+        4096,
+        1,
+        1
+      );
+
+    this.processor.onaudioprocess = event => {
+      const input =
+        event.inputBuffer.getChannelData(0);
+
+      const pcm = resample16k(
+        input,
+        this.inputContext.sampleRate
+      );
+
+      if (pcm.length) {
+        onChunk(toBase64(pcm));
+      }
+    };
+
+    const silent =
+      this.inputContext.createGain();
+
+    silent.gain.value = 0;
+
+    this.source.connect(this.processor);
+    this.processor.connect(silent);
+    silent.connect(
+      this.inputContext.destination
+    );
+  }
+
+  async playPCM24k(base64) {
+    if (!this.outputContext) {
+      this.outputContext = new AudioContext();
+    }
+
+    await this.outputContext.resume();
+
+    const bytes = fromBase64(base64);
+
+    const samples = new Int16Array(
+      bytes.buffer,
+      bytes.byteOffset,
+      Math.floor(bytes.byteLength / 2)
+    );
+
+    const buffer =
+      this.outputContext.createBuffer(
+        1,
+        samples.length,
+        24000
+      );
+
+    const channel =
+      buffer.getChannelData(0);
+
+    for (let i = 0; i < samples.length; i++) {
+      channel[i] = samples[i] / 32768;
+    }
+
+    const node =
+      this.outputContext.createBufferSource();
+
+    node.buffer = buffer;
+
+    node.connect(
+      this.outputContext.destination
+    );
+
+    const startTime = Math.max(
+      this.outputContext.currentTime + 0.01,
+      this.nextPlayTime
+    );
+
+    node.start(startTime);
+
+    this.nextPlayTime =
+      startTime + buffer.duration;
+
+    this.playbackNodes.add(node);
+
+    node.onended = () => {
+      this.playbackNodes.delete(node);
+    };
+  }
+
+  stopPlayback() {
+    for (const node of this.playbackNodes) {
+      try {
+        node.stop();
+      } catch {}
+    }
+
+    this.playbackNodes.clear();
+
+    if (this.outputContext) {
+      this.nextPlayTime =
+        this.outputContext.currentTime;
+    }
+  }
+
+  stop() {
+    this.stopPlayback();
+
+    try {
+      this.processor?.disconnect();
+    } catch {}
+
+    try {
+      this.source?.disconnect();
+    } catch {}
+
+    this.stream
+      ?.getTracks()
+      .forEach(track => track.stop());
+
+    this.processor = null;
+    this.source = null;
+    this.stream = null;
+
+    this.inputContext
+      ?.close()
+      .catch(() => {});
+
+    this.inputContext = null;
+  }
+}
+
+function resample16k(input, sampleRate) {
+  if (sampleRate === 16000) {
+    return convertToInt16(input);
+  }
+
+  const ratio = sampleRate / 16000;
+
+  const length =
+    Math.max(
+      1,
+      Math.floor(input.length / ratio)
+    );
+
+  const output =
+    new Int16Array(length);
+
+  for (let i = 0; i < length; i++) {
+    const position = i * ratio;
+
+    const left = Math.floor(position);
+    const right =
+      Math.min(
+        left + 1,
+        input.length - 1
+      );
+
+    const weight =
+      position - left;
+
+    const sample =
+      input[left] * (1 - weight) +
+      input[right] * weight;
+
+    output[i] = clamp(sample);
+  }
+
+  return output;
+}
+
+function convertToInt16(input) {
+  const output =
+    new Int16Array(input.length);
+
+  for (let i = 0; i < input.length; i++) {
+    output[i] = clamp(input[i]);
+  }
+
+  return output;
+}
+
+function clamp(value) {
+  const v =
+    Math.max(-1, Math.min(1, value));
+
+  return v < 0
+    ? v * 32768
+    : v * 32767;
+}
+
+function toBase64(buffer) {
+  const bytes = new Uint8Array(
+    buffer.buffer,
+    buffer.byteOffset,
+    buffer.byteLength
+  );
+
+  let binary = "";
+
+  for (
+    let i = 0;
+    i < bytes.length;
+    i += 32768
+  ) {
+    binary += String.fromCharCode(
+      ...bytes.subarray(
+        i,
+        i + 32768
+      )
+    );
+  }
+
+  return btoa(binary);
+}
+
+function fromBase64(value) {
+  const binary = atob(value);
+
+  const bytes =
+    new Uint8Array(binary.length);
+
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] =
+      binary.charCodeAt(i);
+  }
+
+  return bytes;
+}
