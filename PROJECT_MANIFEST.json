@@ -1,0 +1,5 @@
+{
+  "project": "Zaya AI — Kiran",
+  "layout": "all files in one folder",
+  "files": [".env.example", ".gitignore", "PROJECT_MANIFEST.json", "README.md", "app.js", "audio.js", "index.html", "package.json", "server.js", "style.css", "tools.js"]
+}

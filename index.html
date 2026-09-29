@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#050509">
+  <title>Zaya AI — Kiran</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="ambient one"></div><div class="ambient two"></div>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><div class="icon">✦</div><div><b>Zaya AI</b><small>Kiran's Futuristic Voice Assistant</small></div></div>
+      <div id="connection" class="connection offline">Connecting…</div>
+    </header>
+
+    <section class="hero">
+      <button id="orb" class="orb idle" aria-label="Start Zaya">
+        <span class="glow"></span><span class="core"></span>
+        <span class="ring a"></span><span class="ring b"></span><span class="ring c"></span>
+      </button>
+
+      <div id="state" class="state">IDLE</div>
+      <h1 id="title">Tap to wake Zaya</h1>
+      <p id="subtitle">Voice-first AI, created by Kiran.</p>
+
+      <div class="buttons">
+        <button id="start" class="primary">Start Listening</button>
+        <button id="stop" class="secondary" disabled>Stop</button>
+      </div>
+
+      <div class="live-card">
+        <div class="label"><i></i> LIVE TRANSCRIPT</div>
+        <div id="transcript">Waiting for your voice…</div>
+      </div>
+    </section>
+
+    <footer><span>Gemini Live • Voice First</span><span id="model">Model: —</span></footer>
+  </main>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
