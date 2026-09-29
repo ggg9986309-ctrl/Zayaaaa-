@@ -42,3 +42,108 @@
   <script type="module" src="/app.js"></script>
 </body>
 </html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#030307">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Zaya AI — Mr. Kiran</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <div class="noise"></div>
+  <div class="aurora aurora-one"></div>
+  <div class="aurora aurora-two"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">Z</div>
+      <div>
+        <div class="brand-name">ZAYA</div>
+        <div class="brand-sub">AI VOICE INTELLIGENCE</div>
+      </div>
+    </div>
+
+    <div class="live-pill">
+      <span class="live-dot"></span>
+      <span id="connection">OFFLINE</span>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="creator">
+      <span>DESIGNED & ENGINEERED BY</span>
+      <strong>MR. KIRAN</strong>
+    </div>
+
+    <section class="zaya-stage">
+
+      <div id="orb" class="orb idle" aria-label="Zaya voice control">
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <div class="orbit orbit-three"></div>
+
+        <div class="energy">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </div>
+
+        <div class="orb-core">
+          <div class="shine"></div>
+          <div class="z-letter">Z</div>
+        </div>
+      </div>
+
+      <div id="state" class="state">IDLE</div>
+
+      <h1 id="title">Wake up Zaya</h1>
+
+      <p id="subtitle">
+        Your voice. Your assistant. Your world.
+      </p>
+
+      <div class="controls">
+        <button id="start" class="start-button">
+          <span class="mic-icon">●</span>
+          START ZAYA
+        </button>
+
+        <button id="stop" class="stop-button" disabled>
+          STOP
+        </button>
+      </div>
+
+      <div class="voice-card">
+        <div class="voice-header">
+          <span><i></i> LIVE VOICE STREAM</span>
+          <span id="model">GEMINI LIVE</span>
+        </div>
+
+        <div class="wave" id="wave">
+          <b></b><b></b><b></b><b></b><b></b>
+          <b></b><b></b><b></b><b></b><b></b>
+          <b></b><b></b><b></b><b></b><b></b>
+          <b></b><b></b><b></b><b></b><b></b>
+        </div>
+
+        <div id="transcript">
+          Zaya is waiting for you…
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <footer>
+    <span>ZAYA AI</span>
+    <span>DEV • MR. KIRAN</span>
+    <span>LIVE VOICE SYSTEM</span>
+  </footer>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
